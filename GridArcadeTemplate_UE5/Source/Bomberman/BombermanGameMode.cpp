@@ -18,14 +18,7 @@ void ABombermanGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		(UGameplayStatics::CreateSaveGameObject(USaveLevel::StaticClass()));
 
 	SaveRef->SaveLvlName(FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
-	USavePlayerLocation* SaveLocRef = Cast<USavePlayerLocation>
-		(UGameplayStatics::CreateSaveGameObject(USavePlayerLocation::StaticClass()));
-	if (SaveLocRef)
-	{
-		/*SaveLocRef->SaveLocation(GetWorld()->
-			GetFirstPlayerController()->GetPawn()->GetActorLocation());*/
-
-	}
+	
 }
 
 void ABombermanGameMode::BeginPlay()
