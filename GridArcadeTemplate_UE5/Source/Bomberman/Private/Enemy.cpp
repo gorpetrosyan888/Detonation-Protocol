@@ -49,7 +49,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 void AEnemy::DieEnemy()
 {
 	UUnneededActors* SaveRef = Cast<UUnneededActors>
-		(UGameplayStatics::LoadGameFromSlot("UneededSlot", 0));
+		(UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
 
 	if (!SaveRef)
 	{
@@ -57,7 +57,7 @@ void AEnemy::DieEnemy()
 			(UGameplayStatics::CreateSaveGameObject(UUnneededActors::StaticClass()));
 	}
 	SaveRef->UnneededActorsArray.Add(GetActorGuid());
-	UGameplayStatics::SaveGameToSlot(SaveRef, "UneededSlot", 0);
+	
 	Destroy();
 }
 

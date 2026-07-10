@@ -26,7 +26,7 @@ FVector USavePlayerLocation::LoadLocation()
 int32 USavePlayerLocation::SaveSeconds(int32 value)
 {
 	newSeconds = value;
-	UGameplayStatics::SaveGameToSlot(this, "TimerSlot", 0);
+	
 
 	
 	return newSeconds;

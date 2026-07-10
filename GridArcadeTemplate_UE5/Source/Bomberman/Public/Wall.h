@@ -23,7 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> Mesh;
 
 	virtual float TakeDamage(
@@ -32,4 +32,7 @@ public:
 		class AController* EventInstigator,
 		AActor* DamageCauser
 	) override;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> DestructionObject;
 };

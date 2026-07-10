@@ -39,7 +39,10 @@ float AWall::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 			(UGameplayStatics::CreateSaveGameObject(UUnneededActors::StaticClass()));
 	}
 	SaveRef->UnneededActorsArray.Add(GetActorGuid());
-	UGameplayStatics::SaveGameToSlot(SaveRef, "UnneededSlot", 0);
+	
+
+	AActor* DestructionActor = GetWorld()->SpawnActor<AActor>(DestructionObject, GetActorTransform());
+
 
 	Destroy();
 	return 0.0f;

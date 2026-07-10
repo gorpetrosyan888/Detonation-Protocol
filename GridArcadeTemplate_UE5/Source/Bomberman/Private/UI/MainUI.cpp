@@ -23,6 +23,9 @@ void UMainUI::NativeConstruct()
 	GetWorld()->GetAuthGameMode<ABombermanGameMode>()
 		->OnEnemyDestroyed.AddDynamic(this, &ThisClass::DecreaseEnemyCount);
 
+	TimerTXT->SetText(FText::AsNumber(timerSeconds));
+
+
 	GetWorld()->GetTimerManager().SetTimer
 	(timer, this, &ThisClass::DecreaseTimer, 1, true);
 
