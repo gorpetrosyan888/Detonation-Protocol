@@ -8,26 +8,37 @@
 #include "StructuralAssets/MainGameInstance.h"
 #include "BombermanGameMode.h"
 #include "StructuralAssets/SavePlayerLocation.h"
+#include "NextLVL.h"
+#include "ReusableDelay.h"
 
 void UMainUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
+	GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>();
+
 	ShowEnemyCount();
-
-	UMainGameInstance* GiRef = GetGameInstance()->GetSubsystem<UMainGameInstance>();
-	GiRef->OnLevelUpdated.AddDynamic(this, &ThisClass::ShowCurrentLvl);
-		
-	GiRef->OnLevelUpdated.Broadcast(GiRef->currentLvlNumber);
-
 	GetWorld()->GetAuthGameMode<ABombermanGameMode>()
 		->OnEnemyDestroyed.AddDynamic(this, &ThisClass::DecreaseEnemyCount);
 
-	TimerTXT->SetText(FText::AsNumber(timerSeconds));
+	if (GmRef)
+	{
+		TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
 
+		TArray<FText> MissionWord =
+		{
+			FText::FromString("Your mission is: Destroy"),
+			FText::AsNumber(GmRef->currentTaskNum),
+			FText::FromString("servers and destroy all enemys")
+		};
 
-	GetWorld()->GetTimerManager().SetTimer
-	(timer, this, &ThisClass::DecreaseTimer, 1, true);
+		MissionText->SetText(FText::Join(FText::FromString(" "), MissionWord));
+
+	}
+
+	
+	
+	ReusableDelay::StartDelay(GetWorld(), 2, this, "StartDecrease");
 
 
 	USavePlayerLocation* SaveRef = Cast<USavePlayerLocation>
@@ -35,32 +46,22 @@ void UMainUI::NativeConstruct()
 
 	if (SaveRef)
 	{
-		timerSeconds = SaveRef->LoadSeconds();
-		TimerTXT->SetText(FText::AsNumber(timerSeconds));
+		GmRef->timerSeconds = SaveRef->LoadSeconds();
+		TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
 
 	}
-}
 
-void UMainUI::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-	USavePlayerLocation* SaveRef = Cast<USavePlayerLocation>
-		(UGameplayStatics::CreateSaveGameObject(USavePlayerLocation::StaticClass()));
-
-	if (SaveRef)
-	{
-		SaveRef->SaveSeconds(timerSeconds);
-	}
 
 
 }
+
+
 
 void UMainUI::DecreaseTimer()
 {
-	timerSeconds--;
-	TimerTXT->SetText(FText::AsNumber(timerSeconds));
-	if (timerSeconds<=0)
+	GmRef->timerSeconds--;
+	TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
+	if (GmRef->timerSeconds<=0)
 	{
 		UGameplayStatics::OpenLevel(GetWorld(),
 			FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
@@ -87,7 +88,15 @@ void UMainUI::ShowEnemyCount()
 	EnemyCounterTXT->SetText(FText::AsNumber(enemyCounts));
 }
 
-void UMainUI::ShowCurrentLvl(int32 value)
+void UMainUI::StartDecrease()
 {
-	CurrentLvlNumber->SetText(FText::AsNumber(value));
+	GetWorld()->GetTimerManager().SetTimer
+	(timer, this, &ThisClass::DecreaseTimer, 1, true);
 }
+
+void UMainUI::ShowMission(int32 count)
+{
+	MissionText->SetText(FText::AsNumber(count));
+}
+
+

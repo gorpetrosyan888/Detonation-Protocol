@@ -29,14 +29,7 @@ public:
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	TObjectPtr<UButton> ContinueBtn;
 
-	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	TObjectPtr<UTextBlock> Level1TXT;
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	TObjectPtr<UTextBlock> Level2TXT;
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	TObjectPtr<UTextBlock> Level3TXT;
+	
 
 	UFUNCTION()
 	void NewGameFunc();
@@ -51,4 +44,7 @@ public:
 
 	UFUNCTION()
 	void QuitGameFunc();
+
+	UPROPERTY(EditAnywhere)
+	TArray<FString> SlotsArray;
 };

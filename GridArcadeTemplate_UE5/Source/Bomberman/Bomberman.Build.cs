@@ -19,8 +19,9 @@ public class Bomberman : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-			"Niagara"
-		});
+			"Niagara",
+            "GeometryCollectionEngine"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 

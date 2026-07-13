@@ -150,7 +150,7 @@ void ABombermanCharacter::DoJumpEnd()
 
 void ABombermanCharacter::DoAttack()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, "Space");
+	
 	if (!bCanAttack)
 	{
 		GetMesh()->GetAnimInstance()->Montage_Play(Montage);
@@ -160,10 +160,11 @@ void ABombermanCharacter::DoAttack()
 
 void ABombermanCharacter::DoPause()
 {
+	PauseWidgetInstance = CreateWidget<UUserWidget>(GetWorld(),
+		PauseWidgetClass);
 	if (!GetWorld()->IsPaused())
 	{
-		PauseWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), 
-			PauseWidgetClass);
+		
 		PauseWidgetInstance->AddToViewport();
 	}
 	else
@@ -175,11 +176,15 @@ void ABombermanCharacter::DoPause()
 void ABombermanCharacter::HandleMontageNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
 
-		AActor* BombRef = GetWorld()->SpawnActor<AActor>(Bomb, 
-			GetMesh()->GetSocketLocation("pelvisSocket"), FRotator::ZeroRotator);
-		bCanAttack = true;
-		GetWorldTimerManager().SetTimer(timer, this,
-			&ThisClass::ResetAttack, 2, false);
+	AActor* BombRef = GetWorld()->SpawnActor<AActor>(Bomb, 
+		GetMesh()->GetSocketLocation("pelvisSocket"), FRotator::ZeroRotator);
+	bCanAttack = true;
+	
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetWorldTimerManager().SetTimer(timer2, this, 
+		&ThisClass::ResetMovement, 1, false);
+	GetWorldTimerManager().SetTimer(timer, this,
+		&ThisClass::ResetAttack, 2, false);
 }
 
 float ABombermanCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -196,16 +201,36 @@ float ABombermanCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 void ABombermanCharacter::ResetAttack()
 {
 	bCanAttack = false;
+	
+
+}
+
+void ABombermanCharacter::ResetMovement()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void ABombermanCharacter::OnCapsuleHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	
 	if (OtherActor->ActorHasTag(FName("Enemy")))
 	{
+		
+		SetActorEnableCollision(false);
+
 		CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
 		GetMesh()->SetSimulatePhysics(true);
 		GetWorldTimerManager().SetTimer(timerDie, this, &ThisClass::Die, 2, false);
+
+		for(FString Slot : SlotsArray)
+		{
+			if (UGameplayStatics::DoesSaveGameExist(Slot, 0))
+			{
+				UGameplayStatics::DeleteGameInSlot(Slot, 0);
+			}
+		}
+		
 		
 	}
 }

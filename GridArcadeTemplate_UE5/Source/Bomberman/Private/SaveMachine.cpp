@@ -8,6 +8,11 @@
 #include "StructuralAssets/SavePlayerLocation.h"
 #include "StructuralAssets/UnneededActors.h"
 #include "Components/BoxComponent.h"
+#include "EngineUtils.h"
+#include "BombermanGameMode.h"
+#include "StructuralAssets/SaveLevel.h"
+#include "Blueprint/UserWidget.h"
+
 
 // Sets default values
 ASaveMachine::ASaveMachine()
@@ -39,7 +44,7 @@ void ASaveMachine::BeginPlay()
 	}
 
 	Box->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OverlapSaveMachine);
-	Box->OnComponentEndOverlap.AddDynamic(this, &ThisClass::EndOverlapSaveMachine);+
+	Box->OnComponentEndOverlap.AddDynamic(this, &ThisClass::EndOverlapSaveMachine);
 
 }
 
@@ -77,15 +82,38 @@ void ASaveMachine::InteractSaveMachine()
 		(UGameplayStatics::CreateSaveGameObject
 		(USavePlayerLocation::StaticClass()));
 
+	SaveRefLoc->SaveLocation(GetWorld()->GetFirstPlayerController()
+		->GetPawn()->GetActorLocation());
+
+	UGameplayStatics::SaveGameToSlot(SaveRefLoc, "TimerSlot", 0);
+
+	UGameplayStatics::SaveGameToSlot(SaveRefLoc, "TutorialSlot", 0);
+
+	ABombermanGameMode* GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>
+		();
+	SaveRefLoc->SaveSeconds(GmRef->timerSeconds);
+
+	USaveLevel* SaveLevelRef = Cast<USaveLevel>(UGameplayStatics::
+		CreateSaveGameObject(USaveLevel::StaticClass()));
+	SaveLevelRef->SaveLvlName(FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
+
+
 	UUnneededActors* SaveRef = Cast<UUnneededActors>
-		(UGameplayStatics::CreateSaveGameObject
-		(USavePlayerLocation::StaticClass()));
+		(UGameplayStatics::LoadGameFromSlot("UnneededSlotAdded", 0));
 
-	SaveRefLoc->SaveLocation(GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation());
+	if (SaveRef)
+	{
+		UGameplayStatics::SaveGameToSlot(SaveRef, "UnneededSlot", 0);
+
+	}
+
+	CreateWidget<UUserWidget>(GetWorld(), WidgetClass)->AddToViewport();
+
+	
 
 
-	UGameplayStatics::SaveGameToSlot(SaveRefLoc, "UnneededSlot", 0);
-	UGameplayStatics::SaveGameToSlot(SaveRef, "TimerSlot", 0);
+	
+
 
 
 }

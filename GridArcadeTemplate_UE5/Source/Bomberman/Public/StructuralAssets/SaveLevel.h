@@ -24,12 +24,7 @@ public:
 	UPROPERTY()
 	FName newLvlName;
 
-	UFUNCTION()
-	int32 SaveLvlNumber(int32 newNumber);
 
-	UFUNCTION()
-	int32 LoadLvlNumber();
 
-	UPROPERTY()
-	int32 newLvlNumber = 1;
+
 };

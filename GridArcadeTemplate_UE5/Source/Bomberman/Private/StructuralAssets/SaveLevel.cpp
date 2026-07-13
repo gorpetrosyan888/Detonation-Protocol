@@ -22,22 +22,4 @@ FName USaveLevel::LoadLvlName()
 	return newLvlName;
 }
 
-int32 USaveLevel::SaveLvlNumber(int32 newNumber)
-{
-	newLvlNumber = newNumber;
-	UGameplayStatics::SaveGameToSlot(this, "LevelNumberSlot", 0);
 
-	return newLvlNumber;
-}
-
-int32 USaveLevel::LoadLvlNumber()
-{
-	if (UGameplayStatics::DoesSaveGameExist("LevelNumberSlot", 0))
-	{
-		USaveLevel* SaveRef = Cast<USaveLevel>
-			(UGameplayStatics::LoadGameFromSlot("LevelNumberSlot", 0));
-		newLvlNumber = SaveRef->newLvlNumber;
-
-	}
-	return newLvlNumber;
-}

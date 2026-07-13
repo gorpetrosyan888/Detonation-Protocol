@@ -7,6 +7,7 @@
 #include "BombermanGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyDestroyed);
+
 UCLASS(abstract)
 class ABombermanGameMode : public AGameModeBase
 {
@@ -18,11 +19,19 @@ public:
 	ABombermanGameMode();
 
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 
 	FOnEnemyDestroyed OnEnemyDestroyed;
 
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	int32 timerSeconds = 180;
+
+
+
+	UPROPERTY(EditAnywhere)
+	int32 currentTaskNum = 20;
 };
 
 

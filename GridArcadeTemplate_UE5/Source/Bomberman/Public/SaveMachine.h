@@ -61,4 +61,8 @@ public:
 	UFUNCTION()
 	void InteractSaveMachine();
 
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> WidgetClass;
+
 };

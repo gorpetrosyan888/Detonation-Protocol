@@ -5,11 +5,12 @@
 #include "Components/BoxComponent.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
-#include "UI/ExposeText.h"
-#include "Blueprint/UserWidget.h"
+
+
 #include "ReusableDelay.h"
-#include "Components/TextRenderComponent.h"
+
 #include "StructuralAssets/UnneededActors.h"
+#include "BombermanGameMode.h"
 
 // Sets default values
 ANextLVL::ANextLVL()
@@ -17,14 +18,7 @@ ANextLVL::ANextLVL()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Box = CreateDefaultSubobject<UBoxComponent>("Box");
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-
-	TextBlock = CreateDefaultSubobject<UTextRenderComponent>("Text");
-
-	TextBlock->SetHiddenInGame(true);
-	Mesh->SetupAttachment(Box);
-
-	TextBlock->SetupAttachment(Box);
+	
 
 }
 
@@ -34,14 +28,8 @@ void ANextLVL::BeginPlay()
 	Super::BeginPlay();
 	Box->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OverlapNextLvl);
 
-	UUnneededActors* SaveRef = Cast<UUnneededActors>(
-		UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
-
-	if (SaveRef && SaveRef->AlreadyNextLvl.Contains(GetActorGuid()))
-	{
-		TextBlock->SetHiddenInGame(false);
-
-	}
+	
+	
 }
 
 // Called every frame
@@ -54,6 +42,20 @@ void ANextLVL::Tick(float DeltaTime)
 void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
+
+	ABombermanGameMode* GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>();
+
+
+	UUnneededActors* SaveRef = Cast<UUnneededActors>
+		(UGameplayStatics::LoadGameFromSlot("UnneededSlotAdded", 0));
+	if (SaveRef)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(
+			SaveRef->UnneededActorsArray.Num()));
+	}
+	
+
+
 	if (OtherActor->ActorHasTag("Player"))
 	{
 		TArray<AActor*> Enemys;
@@ -64,16 +66,12 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 				Enemys.Add(Actor);
 			}
 		}
-		if (Enemys.IsEmpty())
+		if (Enemys.IsEmpty() && SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
 		{
-			UUserWidget* WidgetRef = CreateWidget<UUserWidget>(GetWorld(), ExposeWidget);
-			UExposeText* ExposeRef = Cast<UExposeText>(WidgetRef);
-			if (ExposeRef)
-			{
-				ExposeRef->text = FText::FromString("Victory");
-				ExposeRef->AddToViewport();
-			}
+			GetWorld()->GetFirstPlayerController()->PlayerCameraManager
+				->StartCameraFade(0, 1, 2, FLinearColor::Black);
 			ReusableDelay::StartDelay(GetWorld(), 2, this, "TeleportToAnotherLVL");
+			
 
 		}
 	}
@@ -87,20 +85,4 @@ void ANextLVL::TeleportToAnotherLVL()
 
 }
 
-float ANextLVL::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	TextBlock->SetHiddenInGame(false);
-	UUnneededActors* SaveRef = Cast<UUnneededActors>(
-		UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
-	if (!SaveRef)
-	{
-		SaveRef = Cast<UUnneededActors>(UGameplayStatics::CreateSaveGameObject
-		(UUnneededActors::StaticClass()));
-	}
-	SaveRef->AlreadyNextLvl.Add(GetActorGuid());
-	UGameplayStatics::SaveGameToSlot(SaveRef, "UnneededSlot", 0);
-
-
-	return 0.0f;
-}
 

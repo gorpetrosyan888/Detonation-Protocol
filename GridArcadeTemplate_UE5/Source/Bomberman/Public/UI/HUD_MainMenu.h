@@ -19,4 +19,5 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> WidgetToOpen;
+
 };

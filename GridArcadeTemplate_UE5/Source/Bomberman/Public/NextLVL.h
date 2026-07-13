@@ -8,15 +8,14 @@
 
 
 class UBoxComponent;
-class UUserWidget;
-class UTextRenderComponent;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMission, int32, UpdatedMission);
 
 UCLASS()
 class BOMBERMAN_API ANextLVL : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ANextLVL();
 
@@ -24,7 +23,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -43,23 +42,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	FName LvlName;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUserWidget> ExposeWidget;
+
 
 	UFUNCTION()
 	virtual void TeleportToAnotherLVL();
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UTextRenderComponent> TextBlock;
 
 
-	virtual float TakeDamage(
-		float DamageAmount,
-		struct FDamageEvent const& DamageEvent,
-		class AController* EventInstigator,
-		class AActor* DamageCauser
-	) override;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMeshComponent> Mesh;
+	
 };

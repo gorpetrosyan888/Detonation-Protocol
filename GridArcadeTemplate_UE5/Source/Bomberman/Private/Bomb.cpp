@@ -37,7 +37,7 @@ void ABomb::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	bool bifHited = UKismetSystemLibrary::SphereTraceMulti
 	(GetWorld(), Mesh->GetComponentLocation(), Mesh->GetComponentLocation(),
-		500, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
+		radius, UEngineTypes::ConvertToTraceType(ECC_Visibility), false,
 		Actors, EDrawDebugTrace::None, HitResult, 
 		true, FLinearColor::Red, FLinearColor::Green
 		);

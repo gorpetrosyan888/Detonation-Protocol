@@ -2,7 +2,7 @@
 
 
 #include "UI/PauseWidget.h"
-#include "StructuralAssets/SavePlayerLocation.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"
 
@@ -17,9 +17,13 @@ void UPauseWidget::NativeConstruct()
 
 
 	ResumeBtn->OnClicked.AddDynamic(this, &ThisClass::ResumeFunc);
-	SaveBtn->OnClicked.AddDynamic(this, &ThisClass::SaveFunc);
+	
 	MainMenuBtn->OnClicked.AddDynamic(this, &ThisClass::MainMenuFunc);
+
+	TutorialBtn->OnClicked.AddDynamic(this, &ThisClass::TutorialFunc);
 }
+
+
 
 void UPauseWidget::ResumeFunc()
 {
@@ -30,15 +34,32 @@ void UPauseWidget::ResumeFunc()
 	RemoveFromParent();
 }
 
-void UPauseWidget::SaveFunc()
-{
-	USavePlayerLocation* SaveRef = Cast<USavePlayerLocation>
-		(UGameplayStatics::CreateSaveGameObject(USavePlayerLocation::StaticClass()));
 
-	SaveRef->SaveLocation(GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation());
-}
 
 void UPauseWidget::MainMenuFunc()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "MainMenuLVL");
+
+	if (UGameplayStatics::DoesSaveGameExist("LevelNameSlot", 0))
+	{
+		CreateWidget<UUserWidget>(GetWorld(), MainMenuWidget)->AddToViewport();
+
+	}
+	else
+	{
+
+		CreateWidget<UUserWidget>(GetWorld(), AttentionWidget)->AddToViewport();
+	}
+}
+
+void UPauseWidget::TutorialFunc()
+{
+	if (TutorialWidget)
+	{
+		CreateWidget<UUserWidget>(GetWorld(), TutorialWidget)->AddToViewport();
+
+
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		PC->SetInputMode(FInputModeGameOnly());
+		PC->SetShowMouseCursor(false);
+	}
 }

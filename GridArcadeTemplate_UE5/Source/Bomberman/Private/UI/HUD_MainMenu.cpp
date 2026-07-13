@@ -7,8 +7,12 @@
 
 void AHUD_MainMenu::BeginPlay()
 {
+
+	Super::BeginPlay();
+
 	if (WidgetToOpen)
 	{
 		CreateWidget<UUserWidget>(GetWorld(), WidgetToOpen)->AddToViewport();
 	}
+	
 }

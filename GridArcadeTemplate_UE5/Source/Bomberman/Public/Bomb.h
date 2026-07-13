@@ -32,4 +32,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UParticleSystem> Particle;
+
+	UPROPERTY(EditAnywhere)
+	int32 radius = 500;
 };

@@ -138,8 +138,14 @@ public:
 	UPROPERTY()
 	FTimerHandle timer;
 
+	UPROPERTY()
+	FTimerHandle timer2;
+
 	UFUNCTION()
 	void ResetAttack();
+
+	UFUNCTION()
+	void ResetMovement();
 
 	UPROPERTY()
 	bool bCanAttack = true;
@@ -165,5 +171,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> GameOverWidget;
+
+
+	UPROPERTY(EditAnywhere)
+	TArray<FString> SlotsArray;
 };
 

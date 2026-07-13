@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "StructuralAssets/SaveLevel.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/UserWidget.h"
+#include "BombermanCharacter.h"
 
 void UBombermanMainMenu::NativeConstruct()
 {
@@ -17,50 +20,19 @@ void UBombermanMainMenu::NativeConstruct()
 	ContinueBtn->OnPressed.AddDynamic(this, &ThisClass::ContinueBtnFunc);
 
 
-	USaveLevel* SaveRef = Cast<USaveLevel>
-		(UGameplayStatics::CreateSaveGameObject(USaveLevel::StaticClass()));
-	GEngine->AddOnScreenDebugMessage
-	(-1, 2, FColor::Red, FString::FromInt(SaveRef->LoadLvlNumber()));
+
+	
 	
 
-
-
-
-	if (UGameplayStatics::DoesSaveGameExist("LevelNameSlot", 0) && 
-		UGameplayStatics::DoesSaveGameExist("LevelNumberSlot", 0))
+	if (UGameplayStatics::DoesSaveGameExist("LevelNameSlot", 0))
 	{
-		int32 lvlNum = SaveRef->LoadLvlNumber();
 		
-		switch (lvlNum)
-		{
-		case 1:
-			Level1TXT->SetVisibility(ESlateVisibility::Visible);
-
-			break;
-		case 2:
-			Level1TXT->SetVisibility(ESlateVisibility::Visible);
-			Level2TXT->SetVisibility(ESlateVisibility::Visible);
-			break;
-		case 3:
-			Level1TXT->SetVisibility(ESlateVisibility::Visible);
-			Level2TXT->SetVisibility(ESlateVisibility::Visible);
-			Level3TXT->SetVisibility(ESlateVisibility::Visible);
-			break;
-		default:
-			break;
-		}
-
-		
-
 		ContinueBtn->SetVisibility(ESlateVisibility::Visible);
 		ResetBtn->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
-		Level1TXT->SetVisibility(ESlateVisibility::Collapsed);
-		Level2TXT->SetVisibility(ESlateVisibility::Collapsed);
-		Level3TXT->SetVisibility(ESlateVisibility::Collapsed);
-
+		
 		ContinueBtn->SetVisibility(ESlateVisibility::Collapsed);
 		ResetBtn->SetVisibility(ESlateVisibility::Collapsed);
 
@@ -69,22 +41,30 @@ void UBombermanMainMenu::NativeConstruct()
 
 void UBombermanMainMenu::NewGameFunc()
 {
-	ResetBtnFunc();
 	UGameplayStatics::OpenLevel(GetWorld(), "LVL1");
+	ResetBtnFunc();
+
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	PC->SetInputMode(FInputModeGameOnly());
+	PC->SetShowMouseCursor(false);
+	PC->SetPause(false);
+
 }
 
 void UBombermanMainMenu::ResetBtnFunc()
 {
-	UGameplayStatics::DeleteGameInSlot("LevelNameSlot", 0);
-	UGameplayStatics::DeleteGameInSlot("LevelNumberSlot", 0);
-	UGameplayStatics::DeleteGameInSlot("UnneededSlot", 0);
-	UGameplayStatics::DeleteGameInSlot("TimerSlot", 0);
-	UGameplayStatics::DeleteGameInSlot("LocationSlot", 0);
+	
+	
+	for(FString SlotElem : SlotsArray)
+	{
+		if (UGameplayStatics::DoesSaveGameExist(SlotElem, 0))
+		{
+			UGameplayStatics::DeleteGameInSlot(SlotElem, 0);
+		}
 
+	}
 
-	Level1TXT->SetVisibility(ESlateVisibility::Collapsed);
-	Level2TXT->SetVisibility(ESlateVisibility::Collapsed);
-	Level3TXT->SetVisibility(ESlateVisibility::Collapsed);
+	
 
 	ContinueBtn->SetVisibility(ESlateVisibility::Collapsed);
 	ResetBtn->SetVisibility(ESlateVisibility::Collapsed);
@@ -92,9 +72,22 @@ void UBombermanMainMenu::ResetBtnFunc()
 
 void UBombermanMainMenu::ContinueBtnFunc()
 {
-	USaveLevel* SaveRef = Cast<USaveLevel>
-		(UGameplayStatics::CreateSaveGameObject(USaveLevel::StaticClass()));
-	UGameplayStatics::OpenLevel(GetWorld(), SaveRef->LoadLvlName());
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) != FString("MainMenuLVL"))
+	{
+		UWidgetLayoutLibrary::RemoveAllWidgets(this);
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		PC->SetInputMode(FInputModeGameOnly());
+		PC->SetShowMouseCursor(false);
+		PC->SetPause(false);
+		
+	}
+	else
+	{
+		USaveLevel* SaveRef = Cast<USaveLevel>
+			(UGameplayStatics::CreateSaveGameObject(USaveLevel::StaticClass()));
+		UGameplayStatics::OpenLevel(GetWorld(), SaveRef->LoadLvlName());
+
+	}
 }
 
 

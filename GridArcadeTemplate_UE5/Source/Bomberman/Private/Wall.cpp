@@ -10,14 +10,15 @@ AWall::AWall()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
+
+	
 }
 
 // Called when the game starts or when spawned
 void AWall::BeginPlay()
 {
 	Super::BeginPlay();
-	UUnneededActors* SaveRef = Cast<UUnneededActors>
-		(UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
+	
 
 	
 }
@@ -31,20 +32,22 @@ void AWall::Tick(float DeltaTime)
 
 float AWall::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	
+	
+	AActor* DestructionActor = GetWorld()->SpawnActor<AActor>(DestructionObject, GetActorTransform());
 	UUnneededActors* SaveRef = Cast<UUnneededActors>
-		(UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
+		(UGameplayStatics::LoadGameFromSlot("UnneededSlotAdded", 0));
 	if (!SaveRef)
 	{
 		SaveRef = Cast<UUnneededActors>
 			(UGameplayStatics::CreateSaveGameObject(UUnneededActors::StaticClass()));
 	}
 	SaveRef->UnneededActorsArray.Add(GetActorGuid());
-	
-
-	AActor* DestructionActor = GetWorld()->SpawnActor<AActor>(DestructionObject, GetActorTransform());
-
+	UGameplayStatics::SaveGameToSlot(SaveRef, "UnneededSlotAdded", 0);
 
 	Destroy();
 	return 0.0f;
+	
+
 }
 

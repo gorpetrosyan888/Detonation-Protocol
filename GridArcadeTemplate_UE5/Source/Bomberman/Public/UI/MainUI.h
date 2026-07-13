@@ -7,6 +7,7 @@
 #include "MainUI.generated.h"
 
 class UTextBlock;
+class ABombermanGameMode;
 
 UCLASS()
 class BOMBERMAN_API UMainUI : public UUserWidget
@@ -16,7 +17,6 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	virtual void NativeDestruct() override;
 
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
@@ -25,11 +25,8 @@ public:
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	TObjectPtr<UTextBlock> EnemyCounterTXT;
 
-	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	TObjectPtr<UTextBlock> CurrentLvlNumber;
+	
 
-	UPROPERTY()
-	int32 timerSeconds = 180;
 
 	UPROPERTY()
 	int32 enemyCounts = 0;
@@ -43,10 +40,23 @@ public:
 	UFUNCTION()
 	void ShowEnemyCount();
 
-	UFUNCTION()
-	void ShowCurrentLvl(int32 value);
+
 
 	FTimerHandle timer;
 
+
+
+	UPROPERTY()
+	TObjectPtr<ABombermanGameMode> GmRef;
+
+	UFUNCTION()
+	void StartDecrease();
+
+
+	UFUNCTION()
+	void ShowMission(int32 count);
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> MissionText;
 
 };
