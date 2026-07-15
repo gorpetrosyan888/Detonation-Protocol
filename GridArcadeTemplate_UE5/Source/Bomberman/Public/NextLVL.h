@@ -48,7 +48,11 @@ public:
 	virtual void TeleportToAnotherLVL();
 
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OpenDoors();
 
+	UPROPERTY(EditAnywhere)
+	int32 CurrentServersNum = 20;
 
 	
 };

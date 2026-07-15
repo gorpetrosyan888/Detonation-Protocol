@@ -28,6 +28,8 @@ void ANextLVL::BeginPlay()
 	Super::BeginPlay();
 	Box->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OverlapNextLvl);
 
+	ABombermanGameMode* GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>();
+	GmRef->currentTaskNum = CurrentServersNum;
 	
 	
 }
@@ -68,9 +70,10 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 		}
 		if (Enemys.IsEmpty() && SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
 		{
+			OpenDoors();
 			GetWorld()->GetFirstPlayerController()->PlayerCameraManager
-				->StartCameraFade(0, 1, 2, FLinearColor::Black);
-			ReusableDelay::StartDelay(GetWorld(), 2, this, "TeleportToAnotherLVL");
+				->StartCameraFade(0, 1, 4, FLinearColor::Black);
+			ReusableDelay::StartDelay(GetWorld(), 5, this, "TeleportToAnotherLVL");
 			
 
 		}
@@ -81,6 +84,9 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 void ANextLVL::TeleportToAnotherLVL()
 {
+
+
+
 	UGameplayStatics::OpenLevel(GetWorld(), LvlName);
 
 }

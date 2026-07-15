@@ -43,8 +43,8 @@ ABombermanCharacter::ABombermanCharacter()
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->SetupAttachment(GetMesh(), "head");
+	CameraBoom->TargetArmLength = -3;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	// Create a follow camera
@@ -64,9 +64,9 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		//// Jumping
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABombermanCharacter::Move);
@@ -130,6 +130,8 @@ void ABombermanCharacter::DoLook(float Yaw, float Pitch)
 {
 	if (GetController() != nullptr)
 	{
+		
+
 		// add yaw and pitch input to controller
 		AddControllerYawInput(Yaw);
 		AddControllerPitchInput(Pitch);
@@ -151,12 +153,57 @@ void ABombermanCharacter::DoJumpEnd()
 void ABombermanCharacter::DoAttack()
 {
 	
-	if (!bCanAttack)
+	if (bCanAttack == true)
 	{
-		GetMesh()->GetAnimInstance()->Montage_Play(Montage);
+		// 1. Define the start point, direction, and distance of the ray
+		FVector Start = FollowCamera->GetComponentLocation();
+		FVector End =  Start + (FollowCamera->GetComponentRotation().Vector()) * 10000;
+		// 1000 units range
+
+	   // 2. Create a structure to store the hit result information
+		FHitResult HitResult;
+
+		// 3. Configure query parameters (e.g., ignoring yourself)
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		// 4. Execute the line trace
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult,           // Out parameter: stores hit info
+			Start,               // Start location
+			End,                 // End location
+			ECC_Visibility,      // Collision channel to query against
+			Params               // Additional query settings
+		);
+		
+		if (bHit && HitResult.GetActor())
+		{
+			AActor* HitActor = HitResult.GetActor();
+			FVector HitPoint = HitResult.ImpactPoint;
+
+			
+
+			if (FVector::Distance(Start, HitResult.Location) <= 180)
+			{
+				GetWorld()->SpawnActor<AActor>(Bomb, HitPoint, HitResult.GetActor()->GetActorRotation());
+
+			}
+			
+
+			
+
+		}
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
+
+
+		bCanAttack = false;
+		GetWorldTimerManager().SetTimer(timer, this,
+			&ThisClass::ResetAttack, 2, false);
 	}
-	
+
 }
+	
+
 
 void ABombermanCharacter::DoPause()
 {
@@ -173,20 +220,6 @@ void ABombermanCharacter::DoPause()
 	}
 }
 
-void ABombermanCharacter::HandleMontageNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
-{
-
-	AActor* BombRef = GetWorld()->SpawnActor<AActor>(Bomb, 
-		GetMesh()->GetSocketLocation("pelvisSocket"), FRotator::ZeroRotator);
-	bCanAttack = true;
-	
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	GetWorldTimerManager().SetTimer(timer2, this, 
-		&ThisClass::ResetMovement, 1, false);
-	GetWorldTimerManager().SetTimer(timer, this,
-		&ThisClass::ResetAttack, 2, false);
-}
-
 float ABombermanCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
@@ -200,15 +233,11 @@ float ABombermanCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 
 void ABombermanCharacter::ResetAttack()
 {
-	bCanAttack = false;
+	bCanAttack = true;
 	
 
 }
 
-void ABombermanCharacter::ResetMovement()
-{
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-}
 
 void ABombermanCharacter::OnCapsuleHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -230,8 +259,6 @@ void ABombermanCharacter::OnCapsuleHit(UPrimitiveComponent* HitComp, AActor* Oth
 				UGameplayStatics::DeleteGameInSlot(Slot, 0);
 			}
 		}
-		
-		
 	}
 }
 
@@ -239,7 +266,12 @@ void ABombermanCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ThisClass::OnCapsuleHit);
-	GetMesh()->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUniqueDynamic(this, &ThisClass::HandleMontageNotify);
+	
+
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -25;
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 40;
+
+	
 }
 
 

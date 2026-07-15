@@ -17,9 +17,15 @@ void UMainUI::NativeConstruct()
 	
 	GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>();
 
-	ShowEnemyCount();
 	GetWorld()->GetAuthGameMode<ABombermanGameMode>()
 		->OnEnemyDestroyed.AddDynamic(this, &ThisClass::DecreaseEnemyCount);
+	GetWorld()->GetAuthGameMode<ABombermanGameMode>()
+		->OnServerDestroyed.AddDynamic(this, &ThisClass::DecreaseServerCount);
+	
+
+	ShowEnemyCount();
+	ShowServerCount();
+
 
 	if (GmRef)
 	{
@@ -75,6 +81,13 @@ void UMainUI::DecreaseEnemyCount()
 
 }
 
+void UMainUI::DecreaseServerCount()
+{
+	serverCounter--;
+	ServerCounterTXT->SetText(FText::AsNumber(serverCounter));
+
+}
+
 void UMainUI::ShowEnemyCount()
 {
 	for (AActor* Actor : TActorRange<AActor>(GetWorld()))
@@ -86,6 +99,19 @@ void UMainUI::ShowEnemyCount()
 		}
 	}
 	EnemyCounterTXT->SetText(FText::AsNumber(enemyCounts));
+}
+
+void UMainUI::ShowServerCount()
+{
+	for(AActor* Actor : TActorRange<AActor>(GetWorld()))
+	{
+		if (Actor->ActorHasTag("Server"))
+		{
+			serverCounter++;
+		}
+	}
+	ServerCounterTXT->SetText(FText::AsNumber(serverCounter));
+
 }
 
 void UMainUI::StartDecrease()

@@ -25,11 +25,15 @@ public:
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	TObjectPtr<UTextBlock> EnemyCounterTXT;
 
-	
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	TObjectPtr<UTextBlock> ServerCounterTXT;
 
 
 	UPROPERTY()
 	int32 enemyCounts = 0;
+
+	UPROPERTY()
+	int32 serverCounter = 0;
 
 	UFUNCTION()
 	void DecreaseTimer();
@@ -38,9 +42,13 @@ public:
 	void DecreaseEnemyCount();
 
 	UFUNCTION()
+	void DecreaseServerCount();
+
+	UFUNCTION()
 	void ShowEnemyCount();
 
-
+	UFUNCTION()
+	void ShowServerCount();
 
 	FTimerHandle timer;
 

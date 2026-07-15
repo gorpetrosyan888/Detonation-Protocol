@@ -12,7 +12,7 @@ class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 class UArrowComponent;
-class UNiagaraSystem;
+
 class UUserWidget;
 
 
@@ -109,8 +109,7 @@ public:
 	TObjectPtr<UUserWidget> PauseWidgetInstance;
 
 	
-	UFUNCTION()
-	void HandleMontageNotify(FName NotifyName, const FBranchingPointNotifyPayload & BranchingPointPayload);
+	
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> Montage;
@@ -138,16 +137,14 @@ public:
 	UPROPERTY()
 	FTimerHandle timer;
 
-	UPROPERTY()
-	FTimerHandle timer2;
+	
 
 	UFUNCTION()
 	void ResetAttack();
 
-	UFUNCTION()
-	void ResetMovement();
+	
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	bool bCanAttack = true;
 
 
@@ -164,14 +161,8 @@ public:
 	UPROPERTY()
 	FTimerHandle timerDie;
 
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UNiagaraSystem> Niagara;
-
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> GameOverWidget;
-
 
 	UPROPERTY(EditAnywhere)
 	TArray<FString> SlotsArray;

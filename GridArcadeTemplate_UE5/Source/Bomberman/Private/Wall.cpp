@@ -4,6 +4,7 @@
 #include "Wall.h"
 #include "StructuralAssets/UnneededActors.h"
 #include "Kismet/GameplayStatics.h"
+#include "BombermanGameMode.h"
 // Sets default values
 AWall::AWall()
 {
@@ -32,7 +33,8 @@ void AWall::Tick(float DeltaTime)
 
 float AWall::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	
+	ABombermanGameMode* GmRef = GetWorld()->GetAuthGameMode<ABombermanGameMode>();
+	GmRef->OnServerDestroyed.Broadcast();
 	
 	AActor* DestructionActor = GetWorld()->SpawnActor<AActor>(DestructionObject, GetActorTransform());
 	UUnneededActors* SaveRef = Cast<UUnneededActors>

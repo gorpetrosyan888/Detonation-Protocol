@@ -7,6 +7,7 @@
 #include "BombermanGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyDestroyed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnServerDestroyed);
 
 UCLASS(abstract)
 class ABombermanGameMode : public AGameModeBase
@@ -28,6 +29,8 @@ public:
 	UPROPERTY()
 	int32 timerSeconds = 180;
 
+
+	FOnServerDestroyed OnServerDestroyed;
 
 
 	UPROPERTY(EditAnywhere)
