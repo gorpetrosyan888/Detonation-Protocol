@@ -5,10 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
-
-
 #include "ReusableDelay.h"
-
 #include "StructuralAssets/UnneededActors.h"
 #include "BombermanGameMode.h"
 
@@ -68,7 +65,7 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 				Enemys.Add(Actor);
 			}
 		}
-		if (/*Enemys.IsEmpty() && */SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
+		if (Enemys.IsEmpty() && SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
 		{
 			OpenDoors();
 			GetWorld()->GetFirstPlayerController()->PlayerCameraManager
