@@ -18,25 +18,29 @@ void ABombermanGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UUnneededActors* SaveRef = Cast<UUnneededActors>
-		(UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
-	if (SaveRef)
+	if (GetWorld()->GetFirstPlayerController()->GetPawn())
 	{
-		for(AActor* Actor : TActorRange<AActor>(GetWorld()))
+		UUnneededActors* SaveRef = Cast<UUnneededActors>
+			(UGameplayStatics::LoadGameFromSlot("UnneededSlot", 0));
+		if (SaveRef)
 		{
-			if (SaveRef->UnneededActorsArray.Contains(Actor->GetActorGuid()))
+			for (AActor* Actor : TActorRange<AActor>(GetWorld()))
 			{
-				Actor->Destroy();
+				if (SaveRef->UnneededActorsArray.Contains(Actor->GetActorGuid()))
+				{
+					Actor->Destroy();
+				}
 			}
 		}
-	}
 
-	USavePlayerLocation* SaveLocRef = Cast<USavePlayerLocation>
-		(UGameplayStatics::LoadGameFromSlot("LocationSlot", 0));
-	if (SaveLocRef)
-	{
-		GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation
-		(SaveLocRef->LoadLocation());
+		USavePlayerLocation* SaveLocRef = Cast<USavePlayerLocation>
+			(UGameplayStatics::LoadGameFromSlot("LocationSlot", 0));
+		if (SaveLocRef)
+		{
+			GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation
+			(SaveLocRef->LoadLocation());
+		}
 	}
+	
 
 }

@@ -183,15 +183,11 @@ void ABombermanCharacter::DoAttack()
 
 			
 
-			if (FVector::Distance(Start, HitResult.Location) <= 180)
+			if (FVector::Distance(Start, HitResult.Location) <= distance)
 			{
 				GetWorld()->SpawnActor<AActor>(Bomb, HitPoint, HitResult.GetActor()->GetActorRotation());
-
+				//GetMesh()->GetAnimInstance()->Montage_Play(InstallMontage);
 			}
-			
-
-			
-
 		}
 		//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 
@@ -277,6 +273,5 @@ void ABombermanCharacter::BeginPlay()
 
 void ABombermanCharacter::Die()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), FName
-	(UGameplayStatics::GetCurrentLevelName(GetWorld())));
+	CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
 }

@@ -26,8 +26,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY()
-	int32 timerSeconds = 180;
+	UPROPERTY(EditAnywhere)
+	int32 timerSeconds = 5;
 
 
 	FOnServerDestroyed OnServerDestroyed;

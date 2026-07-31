@@ -26,10 +26,15 @@ void UMainUI::NativeConstruct()
 	ShowEnemyCount();
 	ShowServerCount();
 
+	StartDecrease();
 
 	if (GmRef)
 	{
-		TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
+		int32 totalMinutes = GmRef->timerSeconds / 60;
+		int32 totalSeconds = GmRef->timerSeconds % 60;
+
+		FString TotalTime = FString::Printf(TEXT("%i:%i"), totalMinutes, totalSeconds);
+		TimerTXT->SetText(FText::FromString(TotalTime));
 
 		TArray<FText> MissionWord =
 		{
@@ -44,7 +49,7 @@ void UMainUI::NativeConstruct()
 
 	
 	
-	ReusableDelay::StartDelay(GetWorld(), 2, this, "StartDecrease");
+	
 
 
 	USavePlayerLocation* SaveRef = Cast<USavePlayerLocation>
@@ -53,7 +58,11 @@ void UMainUI::NativeConstruct()
 	if (SaveRef)
 	{
 		GmRef->timerSeconds = SaveRef->LoadSeconds();
-		TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
+		int32 totalMinutes = GmRef->timerSeconds / 60;
+		int32 totalSeconds = GmRef->timerSeconds % 60;
+
+		FString TotalTime = FString::Printf(TEXT("%i:%i"), totalMinutes, totalSeconds);
+		TimerTXT->SetText(FText::FromString(TotalTime));
 
 	}
 
@@ -66,7 +75,11 @@ void UMainUI::NativeConstruct()
 void UMainUI::DecreaseTimer()
 {
 	GmRef->timerSeconds--;
-	TimerTXT->SetText(FText::AsNumber(GmRef->timerSeconds));
+	int32 totalMinutes = GmRef->timerSeconds / 60;
+	int32 totalSeconds = GmRef->timerSeconds % 60;
+
+	FString TotalTime = FString::Printf(TEXT("%i:%i"), totalMinutes, totalSeconds);
+	TimerTXT->SetText(FText::FromString(TotalTime));
 	if (GmRef->timerSeconds<=0)
 	{
 		UGameplayStatics::OpenLevel(GetWorld(),

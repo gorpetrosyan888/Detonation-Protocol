@@ -138,14 +138,14 @@ public:
 	FTimerHandle timer;
 
 	
+	UPROPERTY(EditAnywhere)
+	bool bCanAttack = true;
 
 	UFUNCTION()
 	void ResetAttack();
 
 	
 
-	UPROPERTY(EditAnywhere)
-	bool bCanAttack = true;
 
 
 	UFUNCTION()
@@ -155,7 +155,7 @@ public:
 	
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void Die();
 
 	UPROPERTY()
@@ -166,5 +166,13 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TArray<FString> SlotsArray;
+
+	UPROPERTY(EditAnywhere)
+	float distance = 100;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAnimMontage> InstallMontage;
+
+
 };
 

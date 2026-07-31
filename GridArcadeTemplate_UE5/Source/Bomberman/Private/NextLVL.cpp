@@ -68,12 +68,13 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 				Enemys.Add(Actor);
 			}
 		}
-		if (Enemys.IsEmpty() && SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
+		if (/*Enemys.IsEmpty() && */SaveRef->UnneededActorsArray.Num() >= GmRef->currentTaskNum)
 		{
 			OpenDoors();
 			GetWorld()->GetFirstPlayerController()->PlayerCameraManager
-				->StartCameraFade(0, 1, 4, FLinearColor::Black);
-			ReusableDelay::StartDelay(GetWorld(), 5, this, "TeleportToAnotherLVL");
+				->StartCameraFade(0, 1, 4.5
+					, FLinearColor::Black);
+			ReusableDelay::StartDelay(GetWorld(), 4.4, this, "TeleportToAnotherLVL");
 			
 
 		}
@@ -84,9 +85,6 @@ void ANextLVL::OverlapNextLvl(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 void ANextLVL::TeleportToAnotherLVL()
 {
-
-
-
 	UGameplayStatics::OpenLevel(GetWorld(), LvlName);
 
 }
