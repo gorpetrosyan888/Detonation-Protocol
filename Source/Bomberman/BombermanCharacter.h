@@ -12,9 +12,8 @@ class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 class UArrowComponent;
-
 class UUserWidget;
-
+class USoundBase;
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -60,6 +59,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* PauseAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* SprintAction;
+
+	
+
 public:
 
 	/** Constructor */
@@ -102,6 +106,12 @@ public:
 	UFUNCTION()
 	void DoPause();
 
+	UFUNCTION()
+	void DoSprint();
+
+	UFUNCTION()
+	void DoUnsprint();
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> PauseWidgetClass;
 
@@ -141,6 +151,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bCanAttack = true;
 
+	UPROPERTY(EditAnywhere)
+	bool bCanRun = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float stamina = 1;
+
 	UFUNCTION()
 	void ResetAttack();
 
@@ -154,6 +170,8 @@ public:
 		const FHitResult& Hit);
 	
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
 	void Die();
@@ -172,6 +190,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> InstallMontage;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ErrorSound;
+
 
 
 };

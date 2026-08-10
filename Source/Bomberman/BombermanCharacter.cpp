@@ -17,6 +17,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/PauseWidget.h"
+#include "Sound/SoundBase.h"
 
 ABombermanCharacter::ABombermanCharacter()
 {
@@ -64,9 +65,9 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		//// Jumping
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		// Jumping
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABombermanCharacter::Move);
@@ -80,6 +81,11 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		//Pause
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ABombermanCharacter::DoPause);
+		
+		//Sprint
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ABombermanCharacter::DoSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ABombermanCharacter::DoUnsprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Canceled, this, &ABombermanCharacter::DoUnsprint);
 		
 	}
 	else
@@ -188,6 +194,10 @@ void ABombermanCharacter::DoAttack()
 				GetWorld()->SpawnActor<AActor>(Bomb, HitPoint, HitResult.GetActor()->GetActorRotation());
 				//GetMesh()->GetAnimInstance()->Montage_Play(InstallMontage);
 			}
+			else
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), ErrorSound);
+			}
 		}
 		//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 2.0f);
 
@@ -196,7 +206,7 @@ void ABombermanCharacter::DoAttack()
 		GetWorldTimerManager().SetTimer(timer, this,
 			&ThisClass::ResetAttack, 2, false);
 	}
-
+	
 }
 	
 
@@ -216,11 +226,30 @@ void ABombermanCharacter::DoPause()
 	}
 }
 
+void ABombermanCharacter::DoSprint()
+{
+	
+	if (stamina >= 0)
+	{
+
+		GetCharacterMovement()->MaxWalkSpeed = 500;
+	}
+	
+
+
+	bCanRun = true;
+}
+
+void ABombermanCharacter::DoUnsprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300;
+	bCanRun = false;
+
+}
+
 float ABombermanCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
-	GetMesh()->SetSimulatePhysics(true);
-	GetWorldTimerManager().SetTimer(timerDie, this, &ThisClass::Die, 2, false);
+	Die();
 
 	return 0.0f;
 }
@@ -242,19 +271,9 @@ void ABombermanCharacter::OnCapsuleHit(UPrimitiveComponent* HitComp, AActor* Oth
 	if (OtherActor->ActorHasTag(FName("Enemy")))
 	{
 		
-		SetActorEnableCollision(false);
 
-		CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
-		GetMesh()->SetSimulatePhysics(true);
-		GetWorldTimerManager().SetTimer(timerDie, this, &ThisClass::Die, 2, false);
-
-		for(FString Slot : SlotsArray)
-		{
-			if (UGameplayStatics::DoesSaveGameExist(Slot, 0))
-			{
-				UGameplayStatics::DeleteGameInSlot(Slot, 0);
-			}
-		}
+		Die();
+		
 	}
 }
 
@@ -270,8 +289,54 @@ void ABombermanCharacter::BeginPlay()
 	
 }
 
+void ABombermanCharacter::Tick(float DeltaTime)
+{
+
+	Super::Tick(DeltaTime);
+
+	stamina = FMath::Clamp(stamina, 0, 1);
+
+	if (bCanRun == true)
+	{
+		
+		//stamina = FMath::Lerp(stamina, stamina-=0.1, DeltaTime/0.0003);
+
+		stamina -= 0.3 * DeltaTime;
+
+		if (stamina <= 0.0)
+		{
+
+
+			GetCharacterMovement()->MaxWalkSpeed = 300;
+		}
+
+		
+	}
+	else
+	{
+		
+		stamina += 0.3 * DeltaTime;
+
+		
+		
+		//stamina = FMath::Lerp(stamina, stamina+=0.1, DeltaTime/0.0003);
+
+	}
+}
+
 
 void ABombermanCharacter::Die()
 {
+
+	SetActorEnableCollision(false);
+
 	CreateWidget<UUserWidget>(GetWorld(), GameOverWidget)->AddToViewport();
+
+	for (FString Slot : SlotsArray)
+	{
+		if (UGameplayStatics::DoesSaveGameExist(Slot, 0))
+		{
+			UGameplayStatics::DeleteGameInSlot(Slot, 0);
+		}
+	}
 }

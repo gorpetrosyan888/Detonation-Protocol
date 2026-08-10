@@ -8,6 +8,7 @@
 
 
 class UParticleSystem;
+class USoundBase;
 UCLASS()
 class BOMBERMAN_API ABomb : public AActor
 {
@@ -35,4 +36,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int32 radius = 500;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> Sound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> SoundStart;
 };

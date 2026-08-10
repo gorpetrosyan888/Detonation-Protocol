@@ -5,6 +5,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values
 ABomb::ABomb()
@@ -19,6 +20,7 @@ void ABomb::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UGameplayStatics::PlaySound2D(GetWorld(), SoundStart);
 }
 
 // Called every frame
@@ -34,6 +36,10 @@ void ABomb::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	TArray<AActor*> Actors;
 	Actors.Add(this);
 	TArray<FHitResult> HitResult;
+
+
+	UGameplayStatics::PlaySound2D(GetWorld(), Sound);
+
 
 	bool bifHited = UKismetSystemLibrary::SphereTraceMulti
 	(GetWorld(), Mesh->GetComponentLocation(), Mesh->GetComponentLocation(),
